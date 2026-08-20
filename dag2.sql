@@ -104,3 +104,68 @@ END;
 
 SELECT * FROM MyClusteredIndex2 Where City = 'Urk';		-- NC Seek (id en city zijn al beschikbaar, numberOfCitizens niét)
 
+-- -------------------------------------------------------------------
+
+-- VIEWs zijn updatable
+
+SELECT * FROM MyClusteredIndex2
+
+GO
+
+CREATE OR ALTER VIEW dbo.MarcoPolo
+AS
+SELECT
+	*
+FROM MyClusteredIndex2 AS mci
+WHERE mci.NumberOfCitizens > 20000
+WITH CHECK OPTION;
+
+SELECT * FROM MarcoPolo ORDER By City DESC
+
+INSERT INTO MarcoPolo
+VALUES
+('Cornwerderzand', 2);
+
+GO
+-- -----------------------------------------------------------------
+
+-- INLINE TVF ken je al:
+
+CREATE OR ALTER FUNCTION dbo.Haalop
+(@aantal AS int)
+RETURNS table
+AS
+RETURN
+SELECT TOP (@aantal)
+	mci.City
+FROM MyClusteredIndex2 AS mci 
+ORDER BY mci.City DESC;
+
+SELECT * FROM dbo.Haalop(3);
+
+
+-- Een MULTISTATEMENT TVF ziet er zo uit:
+DROP FUNCTION IF EXISTS dbo.GetDateRange;
+GO
+
+CREATE OR ALTER FUNCTION dbo.GetDateRange 
+(@StartDate date, @NumberOfDays int)
+RETURNS @DateList TABLE			-- Een variabele die we straks retourneren met RETURN
+(Position int, DateValue date)	-- Tabel definitie zoals bij 'CREATE'
+AS 
+BEGIN
+	DECLARE @Counter int = 0;
+	WHILE (@Counter < @NumberofDays) 
+	BEGIN
+		INSERT INTO @DateList
+		VALUES (@Counter + 1, DATEADD(day, @Counter, @StartDate));
+		SET @Counter += 1;
+	END;
+	RETURN;
+END
+GO
+
+SELECT * FROM dbo.GetDateRange('2026-08-20', 15);
+
+-- ----------------------------------------------------------------------------
+
