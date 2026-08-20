@@ -29,8 +29,8 @@ GO
 
 CREATE TABLE Hulpmiddelen
 (
-	-- IDENTITY = auto-nummering (tinyint, smallint, int, bigint)
-	id		int IDENTITY PRIMARY KEY,	
+	id		uniqueidentifier PRIMARY KEY
+			DEFAULT(NEWID()),	
 	title	nvarchar(50)
 );
 GO
@@ -46,6 +46,7 @@ GO
 -- Check Constraint table
 CREATE TABLE Accounts
 (
+	-- IDENTITY = auto-nummering (tinyint, smallint, int, bigint)
 	Id int IDENTITY(1,1) 
 		   CONSTRAINT PK_Accounts_Id 
 		   PRIMARY KEY,
@@ -84,6 +85,7 @@ VALUES
 ('Rolstoel'),
 ('Armprothese');
 
+SELECT * FROM Hulpmiddelen
 INSERT INTO Transactions
 (AccountId, Amount)
 VALUES
@@ -125,3 +127,7 @@ SELECT dbo.DomainExtractor('kees.vanloenen@infosupport.com')
 - minimaal 1 cijfer
 - minimaal 1 hoofdletter (hier heb je nog een function voor nodig: 'dbo.ContainsCapitalLetter')
 */
+
+DECLARE @unieknummertje AS uniqueidentifier;
+SET @unieknummertje = NEWID();
+PRINT @unieknummertje;
